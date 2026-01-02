@@ -266,17 +266,29 @@ namespace Services.Implementations.Chat
             return result;
         }
         
-        private object ConvertJsonElement(JsonElement element)
+        private object ConvertJsonElement(JsonElement element, string propertyName = "", string parentName = "")
         {
             switch (element.ValueKind)
             {
                 case JsonValueKind.String:
-                    return element.GetString();
+                    var stringValue = element.GetString();
+                    return FormatEngineCapacity(stringValue, propertyName, parentName);
                 case JsonValueKind.Number:
-                    if (element.TryGetInt32(out int intValue))
-                        return intValue;
-                    if (element.TryGetInt64(out long longValue))
-                        return longValue;
+                    if (propertyName.Equals("engine_capacity", StringComparison.OrdinalIgnoreCase) && 
+                        parentName.Equals("specs", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (element.TryGetInt32(out int intValue))
+                            return $"{intValue} cc";
+                        if (element.TryGetInt64(out long longValue))
+                            return $"{longValue} cc";
+                        var doubleValue = element.GetDouble();
+                        return $"{doubleValue} cc";
+                    }
+                    
+                    if (element.TryGetInt32(out int intVal))
+                        return intVal;
+                    if (element.TryGetInt64(out long longVal))
+                        return longVal;
                     return element.GetDouble();
                 case JsonValueKind.True:
                     return true;
@@ -288,19 +300,34 @@ namespace Services.Implementations.Chat
                     var obj = new Dictionary<string, object>();
                     foreach (var prop in element.EnumerateObject())
                     {
-                        obj[prop.Name] = ConvertJsonElement(prop.Value);
+                        obj[prop.Name] = ConvertJsonElement(prop.Value, prop.Name, propertyName);
                     }
                     return obj;
                 case JsonValueKind.Array:
                     var array = new List<object>();
                     foreach (var item in element.EnumerateArray())
                     {
-                        array.Add(ConvertJsonElement(item));
+                        array.Add(ConvertJsonElement(item, propertyName, parentName));
                     }
                     return array;
                 default:
                     return element.ToString();
             }
+        }
+
+        private object FormatEngineCapacity(string value, string propertyName, string parentName)
+        {
+            if (string.IsNullOrEmpty(value))
+                return value;
+
+            if (!propertyName.Equals("engine_capacity", StringComparison.OrdinalIgnoreCase) || 
+                !parentName.Equals("specs", StringComparison.OrdinalIgnoreCase))
+                return value;
+
+            if (value.Contains("cc", StringComparison.OrdinalIgnoreCase))
+                return value;
+
+            return $"{value} cc";
         }
     }
 }

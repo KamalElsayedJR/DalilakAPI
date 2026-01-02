@@ -1,5 +1,6 @@
 using Core.Entities.Auth;
 using Core.Entities.Chat;
+using Core.Entities.UsedCar;
 using Microsoft.EntityFrameworkCore;
 
 namespace Repository.Context
@@ -18,6 +19,9 @@ namespace Repository.Context
         // Chat DbSets
         public DbSet<ChatSession> ChatSessions { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
+        
+        // UsedCar DbSets
+        public DbSet<UsedCar> UsedCars { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -79,6 +83,23 @@ namespace Repository.Context
 
                 // Index for performance
                 entity.HasIndex(e => new { e.SessionId, e.CreatedAt });
+            });
+            
+            // UsedCar configuration
+            modelBuilder.Entity<UsedCar>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired();
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Images).IsRequired().HasColumnType("NVARCHAR(MAX)");
+                entity.Property(e => e.Price).IsRequired().HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Description).IsRequired().HasMaxLength(1000);
+                entity.Property(e => e.City).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.BuyerPhoneNumber).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.CreatedAtYear).IsRequired();
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                
+                entity.HasIndex(e => e.UserId);
             });
         }
     }
