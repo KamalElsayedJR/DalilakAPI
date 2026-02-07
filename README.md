@@ -68,24 +68,38 @@ The backend follows **Clean Architecture** with clear separation of concerns:
   Handles database access, external services, and persistence logic.
 
 ### Project Structure
+```
 DalilakAPI
 ├── API
-│ ├── Controllers
-│ ├── Middlewares
-│ ├── Filters
-│ └── Program.cs
-├── Core
-│ ├── Entities
-│ ├── Interfaces
-│ └── DTOs
-├── Services
-│ ├── Implementations
-│ └── Helpers
-├── Repository
-│ ├── Context
-│ ├── Repositories
-│ └── Migrations
+│   ├── Controllers
+│   ├── Middlewares
+│   ├── Filters
+│   ├── Extensions
+│   └── Program.cs
+│
+├── Application
+│   ├── DTOs
+│   ├── Interfaces
+│   │   ├── Repositories
+│   │   └── Services
+│   ├── Services
+│   └── Helpers
+│
+├── Domain
+│   ├── Entities
+│   ├── Enums
+│   └── Constants
+│
+├── Dalilak.Infrastructure
+│   ├── Data
+│   │   └── ApplicationDbContext.cs
+│   ├── Repositories
+│   ├── Migrations
+│   └── Configurations
+│
 └── screenshots
+```
+
 ---
 
 ## Technology Stack
